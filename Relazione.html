@@ -1,0 +1,118 @@
+<html>
+<head>
+
+<title>Relazione</title>
+<link rel="StyleSheet" type="text/css" href="stile.css">
+
+</head>
+
+<body>
+
+<div class="topbar"> 
+<ul>
+  <li><a href="Home.php">Home Page</a></li>
+  <li><a href="Prenotazione.php">Prenota</a></li>
+  <li><a href="AreaRiservata.php">Area Riservata</a></li>
+  <li><a class="active" href="Relazione.html">Relazione</a></li>
+  
+</ul>
+</div>
+
+<br>
+
+<h1 align="center">Relazione</h1><br>
+<div class="relazione">
+<h2>DataBase e Modello E/R:</h2>
+Il progetto in questione tratta di una Sala LAN (o un LAN Party), un luogo in cui molti si riuniscono
+per usufruire dei pc a disposizione e giocare a vari videogiochi. <br><br>
+
+Esso alla base ha un DataBase costruito secondo il seguente schema Entit&agrave/Relazione:<br><br>
+<img id="er" src="Modello_E_R_Sala_LAN.png" alt="Modello_E_R_Sala_LAN" ><br><br>
+
+Da come si pu&ograve notare esso &egrave composto da 4 entit&agrave: Amministratore, Giocatore, Postazione e Videogioco.
+L'amministratore &egrave unico nel sistema (&egrave associato, tramite uno Username di default, a tutti gli utenti) ed esso gestisce tutti i giocatori.
+I giocatori effettuano le prenotazioni che comprendono una o pi&ugrave postazioni.
+Infine le postazioni comprendono diversi tipi di videogiochi, non tutte le postazioni hanno infatti gli stessi videogiochi.
+<br><br>
+Lo schema relazionale associato al precedente sar&agrave quindi composto da:<br><br>
+
+Amministratore(username(pk),password)<br>
+Giocatore(id_giocatore(pk),nome_giocatore,cognome,data_di_nascita,email,numero_di_telefono,username,username_admin(fk))<br>
+Postazione(id_postazione(pk),servizio_bar,richieste_aggiuntive,data_prenotazione,orario,prezzo,id_giocatore(fk))<br>
+Videogioco(nome_videogioco(pk),anno_di_pubblicazione)<br>
+Comprende(nome_videogioco(pk),id_postazione(pk))<br>
+<br><br><hr>
+<h2>Pagine PHP e istruzioni SQL particolari</h2>
+Il Database si avvale di 4 pagine php: Home, Prenotazione, AreaRiservata e AreaAdmin.
+<br><br>
+<b>Prenotazione:</b><br>
+La pagina prenotazione gestisce appunto le varie prenotazioni tramite un form in php che inoltra le informazioni, tramite il metodo post, e le registra nelle tabelle: Giocatore e Postazione.<br>
+Essa contiene un sistema di gestione delle richieste effettuate: infatti se &egrave gi&agrave stata effettuata una prenotazione nella stessa data, alla stessa ora e alla stessa postazione, non sar&agrave possibile effettuarne un'altra.<br>
+Ci&ograve &egrave reso possibile andando a controllare se i record appena inseriti dall'utente contengono informazioni uguali ad altri gi&agrave presenti, tramite la query: <code>SELECT * FROM POSTAZIONE WHERE DATA_PRENOTAZIONE='$data_prenotazione' AND ORARIO='$orario' AND ID_POSTAZIONE='$postazione</code>.<br>
+Se il sistema trova una corrispondenza non &egrave possibile effettuare la richiesta. <br><br>
+
+<b>Area Riservata:</b><br>
+La pagina AreaRiservata gestisce invece il login dell'amministratore del sistema. Tramite le istruzioni di sessione, e tutelando l'accesso da tecniche di SQL injection, l'admin accede alla sua area riservata (AreaAdmin).<br>
+La protezione da SQL injection &egrave gestita tramite le funzioni di stripslashes seguenti: <code>$username=stripslashes($username); $password=stripslashes($password);</code><br>
+L'accesso &egrave gestito in modo analogo al sistema di prenotazione, infatti viene effettuata la seguente query: <code>SELECT * FROM AMMINISTRATORE WHERE USERNAME_ADMIN='$username' AND PASSWORD='$passwmd5'</code>.<br>
+La password &egrave salvata in md5 nel database. Di conseguenza prima di essere confrontata viene convertita tramite la funzione php md5().
+Se vi &egrave una corrispondenza
+tra i dati inseriti dall'amministratore e quelli nel database, esso riesce ad accedere.<br><br>
+
+<b>Area Admin:</b><br>
+La pagina AreaAdmin invece permette all'amministratore di controllare tutte le informazioni necessarie sulle prenotazioni. <br>Ci&ograve &egrave visualizzato in una tabella tramite la query: <code>SELECT NOME_GIOCATORE,COGNOME,DATA_DI_NASCITA,EMAIL,NUMERO_DI_TELEFONO,USERNAME,DATA_PRENOTAZIONE,ORARIO,PREZZO,SERVIZIO_BAR,RICHIESTE_AGGIUNTIVE 
+FROM GIOCATORE INNER JOIN POSTAZIONE ON POSTAZIONE.ID_GIOCATORE=GIOCATORE.ID_GIOCATORE</code>.<br> Essa contiene inoltre un sistema di ricerca dell'utente tramite il suo Username. Infatti tramite la query: <code>SELECT * FROM POSTAZIONE WHERE DATA_PRENOTAZIONE='$data_prenotazione' AND ORARIO='$orario' AND ID_POSTAZIONE='$postazione'</code>
+il sistema ricerca tutti i record corrispondenti a quel determinato username.<br><br>
+
+<b>Home Page:</b><br>
+La Home Page infine, tramite php, mostra all'utente tutti i giochi (in sequenza grazie alla funzione group concat in SQL) associati alle varie postazioni. Ci&ograve &egrave reso possibile dalla query: <code>SELECT COMPRENDE.ID_POSTAZIONE,group_concat(VIDEOGIOCO.NOME_VIDEOGIOCO  order by VIDEOGIOCO.NOME_VIDEOGIOCO) AS LISTA_GIOCHI</code>
+FROM VIDEOGIOCO 
+INNER JOIN COMPRENDE ON VIDEOGIOCO.NOME_VIDEOGIOCO=COMPRENDE.NOME_VIDEOGIOCO 
+GROUP BY COMPRENDE.ID_POSTAZIONE;<br><br><hr>
+
+<h2>Istruzioni CSS</h2>
+Per quanto riguarda il foglio di stile CSS, esso &egrave unico per tutte le pagine. <br>
+Vi &egrave una navbar principale realizzata tramite una lista non ordinata di elementi, la quale &egrave impostata tramite i seguenti valori: <br><br>
+<code>
+ul {<br>
+    list-style-type: none;<br>
+    margin: 0;<br>
+    padding: 0;<br>
+    overflow: hidden;<br>
+	border-bottom: 1px solid white;<br>
+}<br>
+</code><br>
+Sono inoltre gestite le varie azioni legate ai link della navbar.<br>
+Essi hanno il colore bianco fisso e diventano azzurre quando il cursore ci passa sopra, grazie alla funzione :hover.
+Ogni link della navbar, a seconda della pagina, ha una class="active". 
+In questo modo quando ci troviamo in quella determinata pagina, il nome di essa sulla navbar &egrave costantemente azzurro.
+Tutto ci&ograve &egrave gestito tramite le seguenti istruzioni css: <br><br><code>
+a:hover {<br>
+color:#1E90FF;<br>
+}<br>
+<br>
+a:visited { <br>
+text-decoration: none;<br>
+}<br>
+<br>
+.active {<br>
+color:#1E90FF;<br>
+}<br><br>
+
+
+</code>
+
+
+Molti titoli o sottotitoli inoltre vengono visualizzati in blu con un bordo nero per quanto riguarda le scritte in se'. Ci&ograve &egrave realizzato tramite i seguenti valori :<br><br><code>
+.titolo{<br>
+	color:#1E90FF;<br>
+	text-shadow: -1px 0 #000, 0 1px #000, 1px 0 #000, 0 -1px #000;<br>
+}<br>
+</code>
+
+</div>
+
+
+</body>
+
+</html>
