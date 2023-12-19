@@ -1,8 +1,10 @@
-The project in question is about a LAN Center a place where many gather to use the available PCs and play various video games.
+# Lan Center WebSite 
+### (High School Project)
+The project in question is about a LAN Center, a place where many gather to use the available PCs and play various video games.
 
 At the base it has a DataBase built according to the Entity / Relationship scheme.
 
-As you can see, it is made up of 4 entities: Amministratore, Giocatore, Postazione and Videogioco (Administrator, Player, Workstation and Videogame). 
+It is made up of 4 entities: Amministratore, Giocatore, Postazione and Videogioco (Administrator, Player, Workstation and Videogame). 
 The administrator is unique in the system (he is associated, through a default Username, to all users) and he manages all the players. 
 Players make reservations that include one or more seats. 
 Finally, the workstations include different types of video games, not all workstations have the same video games.
